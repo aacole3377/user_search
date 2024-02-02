@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Random User Generator with Bootstrap and Filtering Input</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color: white;
+        }
+    </style>
+</head>
+<body>
+<div class="container mt-4">
+    <h1 style="text-align: center">User Management Problem</h1>
+    <input id="search-input" style="border: none; border-bottom: 2px solid red" type="text" class="form-control mb-4" placeholder="Search by Name">
+    <div id="user-container" class="row"></div>
+</div>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
+<script>
+    $(document).ready(function () {
+        fetch("https://randomuser.me/api/?results=20")
+            .then(res => res.json())
+            .then(data => {
+                const users = data.results;
+                console.log(users)
+                const userContainer = document.getElementById("user-container");
+                function generateUsers(user) {
+                    const col = document.createElement("div");
+                    col.classList.add("col-sm-6", "col-lg-3", "mb-2");
+
+                    const card = document.createElement("div");
+                    card.classList.add("card");
+
+                    const img = document.createElement("img");
+                    img.src = user.picture.large;
+                    img.classList.add("rounded-circle", "img-thumbnail");
+                    img.style.width = "150px";
+                    img.style.height = "150px";
+                    img.style.display = "block";
+                    img.style.margin = "auto";
+
+                    const cardBody = document.createElement("div");
+                    cardBody.classList.add("card-body");
+                    cardBody.style.textAlign = "center";
+
+                    const name = document.createElement("h5");
+                    name.textContent = `${user.name.first} ${user.name.last}`;
+                    name.classList.add("card-title");
+                    name.style.textAlign = "center";
+
+                    const email = document.createElement("p");
+                    email.textContent = user.email;
+                    email.classList.add("card-text");
+
+                    const phone = document.createElement("p");
+                    phone.textContent = user.phone;
+                    phone.classList.add("card-text");
+
+                    cardBody.appendChild(email);
+                    cardBody.appendChild(phone);
+
+                    card.appendChild(name);
+                    card.appendChild(img);
+                    card.appendChild(cardBody);
+
+                    col.appendChild(card);
+                    userContainer.appendChild(col);
+                }
+
+                users.forEach(user => generateUsers(user));
+
+                // Listener for input
+                const searchInput = document.getElementById("search-input");
+                // searchInput.style.border = none;
+
+                searchInput.addEventListener("input", event => {
+                    const filteredUsers = users.filter(user => {
+                        const name = `${user.name.first} ${user.name.last}`;
+                        return name.toLowerCase().includes(event.target.value.toLowerCase());
+                    });
+                    userContainer.innerHTML = "";
+                    filteredUsers.forEach(user => generateUsers(user));
+                });
+            })
+    });
+</script>
+</body>
+</html>
